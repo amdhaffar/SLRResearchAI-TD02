@@ -201,12 +201,72 @@ python -m pytest -v -k "todo_1_3"
 def validate_no_duplicates(records: list[dict]) -> None:
 ```
 
-Placez les valeurs `question` dans un `set`. Si la taille du `set` diffère du
-nombre de dictionnaires, levez une `ValueError`.
+### Ce que signifie « doublon »
+
+On refuse le résultat dès que **deux questions possèdent exactement la même
+formulation**, même si leurs identifiants sont différents. Par exemple :
+
+```python
+[
+    {"identifier": "RQ1", "question": "Quel est le rôle du LLM ?"},
+    {"identifier": "RQ2", "question": "Quel est le rôle du LLM ?"},
+    {"identifier": "RQ3", "question": "Comment évaluer le système ?"},
+]
+```
+
+doit être refusé parce que les textes de RQ1 et RQ2 sont identiques.
+
+### Pourquoi utiliser un `set` ?
+
+Une liste conserve toutes les valeurs, y compris les répétitions :
+
+```python
+questions = ["Question A", "Question A", "Question B"]
+len(questions)  # 3
+```
+
+Un `set` ne conserve qu'une occurrence de chaque valeur :
+
+```python
+unique_questions = set(questions)
+len(unique_questions)  # 2
+```
+
+Une différence entre les deux longueurs prouve donc qu'au moins deux questions
+sont identiques.
+
+### Algorithme demandé
+
+1. construire la liste de toutes les valeurs `record["question"]` ;
+2. construire un `set` à partir de cette liste ;
+3. calculer `len(questions)` et `len(unique_questions)` ;
+4. si les longueurs sont différentes, lever une `ValueError` ;
+5. sinon, ne rien retourner explicitement : la fonction termine normalement.
+
+### Squelette à compléter
+
+```python
+def validate_no_duplicates(records: list[dict]) -> None:
+    questions = [record["question"] for record in records]
+    unique_questions = set(________________)
+
+    if len(________________) != len(________________):
+        raise ValueError("Les trois questions doivent être différentes")
+```
+
+Les trois blancs utilisent uniquement les variables `questions` et
+`unique_questions`. Il n'est pas nécessaire d'écrire une double boucle.
+
+Dans ce TD, l'égalité est exacte après le nettoyage déjà effectué par
+`parse_rq_line()`. La gestion avancée des majuscules, accents ou paraphrases ne
+fait pas partie de ce TODO.
 
 ```bash
 python -m pytest -v -k "todo_1_4"
 ```
+
+Le test construit volontairement deux dictionnaires ayant le même champ
+`question` et vérifie qu'une `ValueError` est levée.
 
 ## TODO 1.5 - Composer le contrôle textuel
 
